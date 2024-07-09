@@ -100,7 +100,7 @@ public class homePage extends Application {
 }
 
 
-
+ // 
     private void executeQuery(String query, TextArea resultArea) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver"); // Ensure the driver is loaded
