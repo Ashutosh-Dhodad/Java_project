@@ -1,6 +1,4 @@
-package com.mysqlcompiler;
-
-import com.mysqlcompiler.View.homePage;
+package com.mysqlcompiler.View;
 
 import javafx.application.Application;
 
