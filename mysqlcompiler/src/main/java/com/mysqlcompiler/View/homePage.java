@@ -26,6 +26,7 @@ public class homePage extends Application {
         queryArea.setPrefWidth(400);
         queryArea.setWrapText(true);
 
+        //add button color
         Button executeQueryButton = new Button("Execute Query");
         TextArea resultArea = new TextArea();
         resultArea.setPrefHeight(300);
