@@ -23,10 +23,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class homePage extends Application {
-    private String DataBase_Name;
+    private String DataBase_Name="a5";
     private String DB_URL;
     private String DB_USER;
     private String DB_PASSWORD;
+    String dbNamesQuery = "Show Databases";
 
     void setCredentials(String username, String password){
         this.DB_USER = username;
@@ -37,12 +38,14 @@ public class homePage extends Application {
         this.DataBase_Name = Database;
         System.out.println("MY Database "+DataBase_Name);
         this.DB_URL = "jdbc:mysql://localhost:3306/"+ DataBase_Name;
+        System.out.println(DB_URL);
     }
     String getDataBase (){
         System.out.println("MY Database2 "+DataBase_Name);
         this.DB_URL = "jdbc:mysql://localhost:3306/"+ DataBase_Name;
         return this.DataBase_Name;
     }
+  
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -61,10 +64,10 @@ public class homePage extends Application {
             return;
         }
 
-        
 
           ///Dailogue window
         HBox DataBaseDialougeBox = new HBox();
+        //Label headLabel = new Label("Current DataBase :" + getDataBase());
 
         TextArea queryArea = new TextArea();
         VBox.setMargin(queryArea, new Insets(0, 0, 0, 350)); 
@@ -94,6 +97,8 @@ public class homePage extends Application {
              queryArea.clear();
              resultArea.clear();
         });
+        
+
 
         Button openDialogButton = new Button("Use DataBase");
         openDialogButton.setStyle("-fx-background-color: #006400; -fx-text-fill: white;");
@@ -160,6 +165,8 @@ public class homePage extends Application {
             setCredentials(username, password);
             // Close the dialog
             dialogStage.close();
+
+
         });
         // Add components to the layout
         dialogVbox.getChildren().addAll(new Label("Enter User Name:"), userNameTextField);
@@ -190,6 +197,29 @@ public class homePage extends Application {
     Button okButton = new Button("OK");
     okButton.setMaxWidth(100);
 
+    TextArea databaseNamesArea = new TextArea();
+    //.setMargin(databaseNamesArea new Insets(0, 0, 0, 350)); 
+    databaseNamesArea.setPrefHeight(300);
+    databaseNamesArea.setMaxWidth(200);
+    databaseNamesArea.setWrapText(true);
+
+    Button show_databasesButton = new Button("show databases");
+    
+    show_databasesButton.setMaxWidth(300);
+    show_databasesButton.setOnAction(e -> {
+        // Handle button click (e.g., get text from textField)
+        // Close the dialog
+        setDataBase(DataBase_Name);
+        executeQuery(dbNamesQuery, databaseNamesArea);
+        showDatabaseNames(dbNamesQuery, databaseNamesArea);
+        
+    });
+
+    VBox vbox = new VBox(30);
+    
+    HBox diaHBox = new HBox(30,dialogVbox,databaseNamesArea, show_databasesButton, vbox);
+    
+    
     // Set action for the button
     okButton.setOnAction(e -> {
         // Handle button click (e.g., get text from textField)
@@ -199,9 +229,9 @@ public class homePage extends Application {
         dialogStage.close();
     });
     // Add components to the layout
-    dialogVbox.getChildren().addAll(new Label("Enter Database name:"), textField, okButton);
+    vbox.getChildren().addAll(new Label("Enter Database name:"), textField, okButton);
     // Create a scene with layout for the dialog
-    Scene dialogScene = new Scene(dialogVbox, 800, 600);
+    Scene dialogScene = new Scene(diaHBox, 800, 600);
 
     // Set the scene for the dialog stage
     dialogStage.setScene(dialogScene);
@@ -248,4 +278,29 @@ public class homePage extends Application {
         resultArea.setText(result.toString());
     }
 
+
+    private void  showDatabaseNames(String dbNamesQuery , TextArea databaseNamesArea){
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Ensure the driver is loaded
+            try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                 Statement statement = connection.createStatement()) {
+
+                boolean isResultSet = statement.execute(dbNamesQuery);
+
+                if (isResultSet) {
+                    ResultSet resultSet = statement.getResultSet();
+                    displayResultSet(resultSet, databaseNamesArea);
+                } else {
+                    int updateCount = statement.getUpdateCount();
+                    databaseNamesArea.setText("Query OK, " + updateCount + " rows affected.");
+                }
+            }
+        } catch (ClassNotFoundException | SQLException ex) {
+            databaseNamesArea.setText("Error: " + ex.getMessage());
+        }
+    }
+
+ 
+
 }
+
